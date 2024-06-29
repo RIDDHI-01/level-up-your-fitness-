@@ -1,0 +1,392 @@
+# Python code done
+import mysql.connector
+
+# MySQL connection settings
+username = 'root'
+password = 'shreya1'
+host = 'localhost'
+database = 'fitness'
+
+# Connect to MySQL database
+cnx = mysql.connector.connect(
+    user=username,
+    password=password,
+    host=host,
+    database=database
+)
+
+# Create a cursor object to execute queries
+cursor = cnx.cursor()
+
+with open('home.html', 'r') as file:
+    html_content = file.read()
+
+with open('index.html', 'r') as file:
+    html_content = file.read()
+
+with open('register.html', 'r') as file:
+    html_content = file.read()
+
+with open('login.html', 'r') as file:
+    html_content = file.read()
+
+# Now you can use html_content in your Python code
+
+from flask import Flask, send_file
+
+app = Flask(_name_)
+
+@app.route('/')
+def serve_html():
+    return send_file('your_file.html')
+
+if _name_ == 'main':
+    app.run()
+ 
+class UserProfile:
+    def _init_(self, user_id, age, gender, weight, height, fitness_goals, health_conditions, name):
+        self.user_id = user_id
+        self.age = age
+        self.gender = gender
+        self.weight = weight
+        self.height = height
+        self.fitness_goals = fitness_goals
+        self.health_conditions = health_conditions
+        self.name = name
+
+    def update_profile(self, age=None, gender=None, weight=None, height=None, fitness_goals=None, health_conditions=None):
+        if age:
+            self.age = age
+        if gender:
+            self.gender = gender
+        if weight:
+            self.weight = weight
+        if height:
+            self.height = height
+        if fitness_goals:
+            self.fitness_goals = fitness_goals
+        if health_conditions:
+            self.health_conditions = health_conditions
+
+        # Update user profile in database
+        query = "UPDATE user_profiles SET age = %s, gender = %s, weight = %s, height = %s, fitness_goals = %s, health_conditions = %s WHERE user_id = %s"
+        cursor.execute(query, (self.age, self.gender, self.weight, self.height, self.fitness_goals, self.health_conditions, self.user_id))
+        cnx.commit()
+
+    def track_progress(self):
+        # Retrieve user's activity logs from database
+        query = "SELECT * FROM activity_logs WHERE user_id = %s"
+        cursor.execute(query, (self.user_id,))
+        activity_logs = cursor.fetchall()
+
+        # Calculate progress metrics (e.g., total workouts, total duration, etc.)
+        total_workouts = len(activity_logs)
+        total_duration = sum(log[2] for log in activity_logs)
+
+        # Return progress metrics
+        return total_workouts, total_duration
+
+    
+    
+
+# Personalized Workout Plans
+class WorkoutPlan:
+    def _init_(self, user_id, difficulty_level, exercises):
+        self.user_id = user_id
+        self.difficulty_level = difficulty_level
+        self.exercises = exercises
+        difficulty_level = input("Enter difficulty level (beginner, intermediate, advanced): ").lower()
+        if difficulty_level not in ["beginner", "intermediate", "advanced"]:
+         print("Invalid difficulty level. Please enter beginner, intermediate, or advanced.")
+         exit()
+
+    
+
+    def get_video_tutorials(self):
+        # Retrieve video tutorials for each exercise from database or external API
+        video_tutorials = []
+        for exercise in self.exercises:
+            query = "SELECT video_url FROM exercise_videos WHERE exercise_name = %s"
+            cursor.execute(query, (exercise,))
+            video_url = cursor.fetchone()[0]
+            video_tutorials.append(video_url)
+        return video_tutorials
+
+    def get_step_by_step_instructions(self):
+        # Retrieve step-by-step instructions for each exercise from database or external API
+        instructions = []
+        for exercise in self.exercises:
+            query = "SELECT instructions FROM exercise_instructions WHERE exercise_name = %s"
+            cursor.execute(query, (exercise,))
+            instruction = cursor.fetchone()[0]
+            instructions.append(instruction)
+        return instructions
+
+class WorkoutPlanGenerator:
+    def _init_(self):
+        self.workout_plans = {}
+
+    def generate_workout_plan(self, user_id, difficulty_level):
+        # Implement logic to generate a workout plan based on user profile and fitness goals done
+        # Retrieve user profile from database
+        query = "SELECT * FROM user_profiles WHERE user_id = %s"
+        cursor.execute(query, (user_id,))
+        user_profile = cursor.fetchone()
+
+        # Determine exercises based on user profile and fitness goals
+        exercises = []
+        if user_profile[1] < 30:  # Age < 30
+            if difficulty_level == 'beginner':
+                exercises = ['push-ups', 'squats', 'lunges', 'planks']
+            elif difficulty_level == 'intermediate':
+                exercises = ['bench press', 'deadlifts', 'bicep curls', 'tricep dips']
+            elif difficulty_level == 'advanced':
+                exercises = ['weightlifting', 'high-intensity interval training', 'plyometrics']
+        elif user_profile[1] >= 30 and user_profile[1] < 50:  # Age 30-49
+            if difficulty_level == 'beginner':
+                exercises = ['brisk walking', 'swimming', 'cycling', 'yoga']
+            elif difficulty_level == 'intermediate':
+                exercises = ['jogging', 'jumping rope', 'boxing', 'kickboxing']
+            elif difficulty_level == 'advanced':
+                exercises = ['marathon training', 'triathlon training', ' CrossFit']
+        else:  # Age 50+
+            if difficulty_level == 'beginner':
+               exercises = ['stretching', 'light yoga', 'short walks', 'swimming']
+            elif difficulty_level == 'intermediate':
+               exercises = ['brisk walking', 'jogging', 'cycling', 'dancing']
+            elif difficulty_level == 'advanced':
+               exercises = ['high-intensity interval training', 'strength training', 'balance exercises']
+
+        # Create a WorkoutPlan object with the generated exercises
+        plan = WorkoutPlan(user_id, difficulty_level, exercises)
+        self.workout_plans[user_id] = plan
+        return plan
+
+    def get_workout_plan(self, user_id):
+        return self.workout_plans.get(user_id)
+
+# Nutrition and Diet Plans
+class DietPlan:
+    def _init_(self, user_id, dietary_preferences, meals):
+        self.user_id = user_id
+        self.dietary_preferences = dietary_preferences
+        self.meals = meals
+
+    def get_nutritional_information(self):
+        # Implement logic to retrieve detailed nutritional information for each meal done
+        # Retrieve nutritional information for each meal from database or external API
+        nutritional_info = []
+        for meal in self.meals:
+            query = "SELECT nutritional_info FROM meal_nutrition WHERE meal_name = %s"
+            cursor.execute(query, (meal,))
+            info = cursor.fetchone()[0]
+            nutritional_info.append(info)
+        return nutritional_info
+
+    def get_recipes_and_meal_prep_instructions(self):
+        # Implement logic to retrieve recipes and meal prep instructions done
+        # Retrieve recipes and meal prep instructions for each meal from database or external API
+        recipes_and_instructions = []
+        for meal in self.meals:
+            query = "SELECT recipe, instructions FROM meal_recipes WHERE meal_name = %s"
+            cursor.execute(query, (meal,))
+            recipe, instructions = cursor.fetchone()
+            recipes_and_instructions.append((recipe, instructions))
+        return recipes_and_instructions
+
+class DietPlanGenerator:
+    def _init_(self):
+        self.diet_plans = {}
+
+    def generate_diet_plan(self, user_id, dietary_preferences):
+        # Implement logic to generate a diet plan based on user profile and dietary preferences done
+        # Get user profile from database
+        cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            raise ValueError("User not found")
+
+        # Get dietary preferences from database
+        cursor.execute("SELECT * FROM dietary_preferences WHERE id = %s", (dietary_preferences,))
+        diet_pref = cursor.fetchone()
+        if not diet_pref:
+            raise ValueError("Dietary preference not found")
+
+        # Calculate daily calorie needs based on user profile
+        daily_calories = self.calculate_daily_calories(user)
+
+        # Generate meal plan based on dietary preferences and daily calorie needs
+        meals = self.generate_meal_plan(diet_pref, daily_calories)
+
+        # Create a DietPlan object
+        plan = DietPlan(user_id, dietary_preferences, meals)
+        self.diet_plans[user_id] = plan
+        return plan
+
+    def calculate_daily_calories(self, user):
+        # Simplified calculation based on user profile
+        if user['gender'] == 'male':
+            daily_calories = 2500 + (user['weight'] * 10) + (user['height'] * 6.25) - (user['age'] * 5)
+        else:
+            daily_calories = 2000 + (user['weight'] * 10) + (user['height'] * 6.25) - (user['age'] * 5)
+
+        # Adjust for activity level
+        if user['activity_level'] == 'edentary':
+            daily_calories *= 1.2
+        elif user['activity_level'] == 'lightly active':
+            daily_calories *= 1.375
+        elif user['activity_level'] == 'oderately active':
+            daily_calories *= 1.55
+        elif user['activity_level'] == 'ery active':
+            daily_calories *= 1.725
+        elif user['activity_level'] == 'extremely active':
+            daily_calories *= 1.9
+
+        return daily_calories
+
+    def generate_meal_plan(self, diet_pref, daily_calories):
+        # Simplified meal plan generation based on dietary preferences and daily calorie needs
+        meals = []
+        for meal_type in ['breakfast', 'lunch', 'dinner', 'nack']:
+            meal = self.generate_meal(diet_pref, daily_calories, meal_type)
+            meals.append(meal)
+        return meals
+
+    def generate_meal(self, diet_pref, daily_calories, meal_type):
+        # Simplified meal generation based on dietary preferences and daily calorie needs
+        meal = {}
+        if meal_type == 'breakfast':
+            meal['food'] = 'oatmeal with fruits'
+            meal['calories'] = daily_calories * 0.3
+        elif meal_type == 'lunch':
+            meal['food'] = 'grilled chicken with quinoa and vegetables'
+            meal['calories'] = daily_calories * 0.4
+        elif meal_type == 'dinner':
+            meal['food'] = 'baked salmon with sweet potato and green beans'
+            meal['calories'] = daily_calories * 0.4
+        elif meal_type == 'nack':
+            meal['food'] = 'apple slices with almond butter'
+            meal['calories'] = daily_calories * 0.1
+
+        # Adjust meal based on dietary preferences
+        if diet_pref['diet_type'] == 'egetarian':
+            meal['food'] = meal['food'].replace('chicken', 'tofu')
+        elif diet_pref['diet_type'] == 'gluten-free':
+            meal['food'] = meal['food'].replace('quinoa', 'gluten-free rice')
+
+        return meal
+
+    def get_diet_plan(self, user_id):
+        return self.diet_plans.get(user_id)
+
+# Activity Tracking
+class ActivityLog:
+    def _init_(self, user_id, workout, duration, date):
+        self.user_id = user_id
+        self.workout = workout
+        self.duration = duration
+        self.date = date
+
+    def log_workout(self):
+        # Implement logic to log workout in database
+        query = "INSERT INTO activity_logs (user_id, workout, duration, date) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (self.user_id, self.workout, self.duration, self.date))
+        cnx.commit()
+
+        # Calculate progress metrics (e.g., total workouts, total duration)
+        self.calculate_progress_metrics(cnx, cursor)
+
+    def calculate_progress_metrics(self, cnx, cursor):
+        # Calculate total workouts
+        query = "SELECT COUNT(*) FROM activity_logs WHERE user_id = %s"
+        cursor.execute(query, (self.user_id,))
+        total_workouts = cursor.fetchone()[0]
+
+        # Calculate total duration
+        query = "SELECT SUM(duration) FROM activity_logs WHERE user_id = %s"
+        cursor.execute(query, (self.user_id,))
+        total_duration = cursor.fetchone()[0]
+
+        # Update user's progress metrics
+        query = "UPDATE users SET total_workouts = %s, total_duration = %s WHERE id = %s"
+        cursor.execute(query, (total_workouts, total_duration, self.user_id))
+        cnx.commit()
+        query = "INSERT INTO activity_logs (user_id, workout, duration, date) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (self.user_id, self.workout, self.duration, self.date))
+        cnx.commit()
+
+
+
+def main():
+    user_id = input("Enter user ID: ")
+    user_profile = UserProfile(user_id)
+    print("User Profile:")
+    print("Age:", user_profile.age)
+    print("Gender:", user_profile.gender)
+    print("Weight:", user_profile.weight)
+    print("Height:", user_profile.height)
+    print("Fitness Goals:", user_profile.fitness_goals)
+    print("Health Conditions:", user_profile.health_conditions)
+
+    # Update user profile
+    user_profile.update_profile(age=30, gender="Female", weight=60.0, height=165.0)
+
+    # Track progress
+    user_profile.track_progress()
+
+def main():
+      
+      print("Select an option:")
+      print("1.  Workout Plan")
+      print("2. Access Diet Plan")
+      print("3. Log Activity")
+      print("4. Track Progress")
+      choice = int(input("Enter your choice: "))
+
+      if choice == 1:
+        user_id = input("Enter user ID: ")
+        difficulty_level = input("Enter difficulty level (beginner, intermediate, advanced): ")
+        age=input("enter age: ")
+        exercises = []
+        if difficulty_level == 'beginner':
+                exercises = ['push-ups', 'squats', 'lunges', 'planks']
+        elif difficulty_level == 'intermediate':
+                exercises = ['bench press', 'deadlifts', 'bicep curls', 'tricep dips']
+        elif difficulty_level == 'advanced':
+                exercises = ['weightlifting', 'high-intensity interval training', 'plyometrics']
+
+        
+        workout_plan = WorkoutPlan(user_id, difficulty_level, exercises)
+        print("Workout Plan:")
+        print("Exercises:", workout_plan.exercises)
+        print("Video Tutorials:", workout_plan.get_video_tutorials())
+        print("Step-by-Step Instructions:", workout_plan.get_step_by_step_instructions())
+      elif choice == 2:
+        user_id = input("Enter user ID: ")
+        dietary_preferences = input("Enter dietary preferences (vegetarian, gluten-free, etc.): ")
+        meals = ["breakfast", "lunch", "dinner", "snack"]
+        diet_plan = DietPlan(user_id, dietary_preferences, meals)
+        print("Diet Plan:")
+        print("Meals:", diet_plan.meals)
+        print("Nutritional Information:", diet_plan.get_nutritional_information())
+        print("Recipes and Meal Prep Instructions:", diet_plan.get_recipes_and_meal_prep_instructions())
+      elif choice == 3:
+        user_id = input("Enter user ID: ")
+        workout = input("Enter workout: ")
+        duration = int(input("Enter duration: "))
+        date = input("Enter date: ")
+        activity_log = ActivityLog(user_id, workout, duration, date)
+        activity_log.log_workout()
+        print("Workout logged successfully!")
+      elif choice == 4:
+        user_id = input("Enter user ID: ")
+        user_profile = UserProfile(user_id, 25, "Male", 70.0, 170.0, "weight loss", "none", "John")
+        progress_metrics = user_profile.track_progress()
+        print("Progress Metrics:")
+        print("Total Workouts:", progress_metrics[0])
+        print("Total Duration:", progress_metrics[1])
+      else:
+        print("Invalid choice")
+
+if _name_ == "_main_":
+    main()
